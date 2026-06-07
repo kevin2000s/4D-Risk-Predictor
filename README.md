@@ -92,20 +92,22 @@ Double-click to launch the GUI. The `dist/` folder is excluded from Git (see `.g
 
 ### 1. Download Pre-trained Models
 
-Model files (`*.joblib`) are **not stored in this repository**. Download them from the [Releases](https://github.com/kevin2000s/4D-Risk-Predictor/releases) page and place them in the project root directory.
-
-| File | Size | Description |
-|:-----|:-----|:------------|
-| `svd128_extratrees_models.joblib` | ~20 MB | ExtraTrees regressors |
-| `svd128_svd_transformer.joblib` | ~75 MB | TruncatedSVD transformer |
-| `svd128_model_metadata.joblib` | ~2 MB | SNP IDs & feature names |
-| `svd128_env_scaler.joblib` | ~1 MB | Environment scaler |
+Model files (`*.joblib`) are **not stored in this repository**. Download `models.zip` from the [Releases](https://github.com/kevin2000s/4D-Risk-Predictor/releases) page and extract it to the project root directory.
 
 ```bash
-# Example: download from Release v1.0
+# Download model package (~70 MB)
 wget https://github.com/kevin2000s/4D-Risk-Predictor/releases/download/v1.0/models.zip
-unzip models.zip  # Extracts 4 .joblib files to project root
+
+# Extract (produces 4 .joblib files in project root)
+unzip models.zip
 ```
+
+| File (inside `models.zip`) | Size | Description |
+|:-----|:-----|:------------|
+| `svd128_extratrees_models.joblib` | ~19 MB | ExtraTrees regressors (4 dimensions) |
+| `svd128_svd_transformer.joblib` | ~74 MB | TruncatedSVD transformer (128 components) |
+| `svd128_model_metadata.joblib` | ~2 MB | SNP IDs & feature names |
+| `svd128_env_scaler.joblib` | ~1 MB | Environment scaler |
 
 ### 2. Run Prediction
 
@@ -276,20 +278,22 @@ This project is licensed under the [MIT License](LICENSE).
 
 #### 1. 下载预训练模型
 
-模型文件（`*.joblib`）**不存储在代码仓库中**。请从 [Releases](https://github.com/kevin2000s/4D-Risk-Predictor/releases) 页面下载并解压到项目根目录。
-
-| 文件 | 大小 | 说明 |
-|:-----|:-----|:-----|
-| `svd128_extratrees_models.joblib` | ~20 MB | ExtraTrees 回归模型 |
-| `svd128_svd_transformer.joblib` | ~75 MB | SVD 降维转换器 |
-| `svd128_model_metadata.joblib` | ~2 MB | SNP ID 及特征名 |
-| `svd128_env_scaler.joblib` | ~1 MB | 环境数据标准化器 |
+模型文件（`*.joblib`）**不存储在代码仓库中**。请从 [Releases](https://github.com/kevin2000s/4D-Risk-Predictor/releases) 页面下载 `models.zip` 并解压到项目根目录。
 
 ```bash
-# 示例：从 Release v1.0 下载
+# 下载模型包（~70 MB）
 wget https://github.com/kevin2000s/4D-Risk-Predictor/releases/download/v1.0/models.zip
-unzip models.zip  # 解压出 4 个 .joblib 文件到项目根目录
+
+# 解压（在项目根目录生成 4 个 .joblib 文件）
+unzip models.zip
 ```
+
+| 文件（在 `models.zip` 内） | 大小 | 说明 |
+|:-----|:-----|:-----|
+| `svd128_extratrees_models.joblib` | ~19 MB | ExtraTrees 回归模型（4 个维度） |
+| `svd128_svd_transformer.joblib` | ~74 MB | SVD 降维转换器（128 个主成分） |
+| `svd128_model_metadata.joblib` | ~2 MB | SNP ID 及特征名 |
+| `svd128_env_scaler.joblib` | ~1 MB | 环境数据标准化器 |
 
 #### 2. 运行预测
 
