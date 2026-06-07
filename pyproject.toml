@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "4d-risk-predictor"
+version = "1.0.0"
+description = "SVD(128) + ExtraTrees 4D Transmission Risk Prediction Toolkit"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+authors = [
+    {name = "Bioinformatics Research Group"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dependencies = [
+    "pandas>=1.5.0",
+    "numpy>=1.24.0",
+    "scikit-learn>=1.3.0",
+    "scipy>=1.11.0",
+    "matplotlib>=3.7.0",
+    "joblib>=1.3.0",
+    "ttkbootstrap>=1.10.0",
+    "Pillow>=10.0.0",
+]
+
+[project.scripts]
+4d-predict = "prediction_toolkit.predict:main"
+4d-batch = "prediction_toolkit.batch_predict:main"
+
+[project.gui-scripts]
+4d-gui = "prediction_toolkit.gui.app:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["prediction_toolkit*"]
