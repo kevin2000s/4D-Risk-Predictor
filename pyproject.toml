@@ -37,6 +37,7 @@ dependencies = [
 [project.scripts]
 4d-predict = "prediction_toolkit.predict:main"
 4d-batch = "prediction_toolkit.batch_predict:main"
+4d-vcf-to-csv = "prediction_toolkit.vcf_to_csv:main"
 
 [project.gui-scripts]
 4d-gui = "prediction_toolkit.gui.app:main"

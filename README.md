@@ -54,6 +54,65 @@ chmod +x build.sh
 
 The executable will be at `dist/4D_Risk_Predictor/4D_Risk_Predictor.exe`.
 
+## Input Data Preparation
+
+The model was trained on SNPs called against the **EC29** reference genome (`EC29.gbk`, 4,024,997 bp). The reference file is included in this repository. To predict new isolates from raw sequencing reads, the recommended workflow is:
+
+**Raw reads → Map/call SNPs with Snippy (using EC29) → VCF → Convert to CSV → Predict**
+
+### 1. Call SNPs with Snippy
+
+Install [Snippy](https://github.com/tseemann/snippy) and run it per sample using `EC29.gbk` as the reference:
+
+```bash
+snippy --cpus 4 --outdir sample_A --ref EC29.gbk --R1 sample_A_R1.fastq.gz --R2 sample_A_R2.fastq.gz
+snippy --cpus 4 --outdir sample_B --ref EC29.gbk --R1 sample_B_R1.fastq.gz --R2 sample_B_R2.fastq.gz
+```
+
+Expected output structure:
+
+```
+snippy_outputs/
+├── sample_A/
+│   └── snps.vcf
+├── sample_B/
+│   └── snps.vcf
+└── ...
+```
+
+Alternatively, you can produce a single multi-sample VCF by combining Snippy results or using a Snippy-core workflow.
+
+### 2. Convert VCF to CSV
+
+Use the included `vcf_to_csv.py` converter to generate the long-format CSV required by `predict.py`:
+
+```bash
+# From a single multi-sample VCF
+python prediction_toolkit/vcf_to_csv.py --input combined.raw.vcf --out snp_data.csv
+
+# From multiple per-sample VCF files (glob pattern)
+python prediction_toolkit/vcf_to_csv.py --input "sample_*/snps.vcf" --out snp_data.csv
+
+# From a Snippy output directory
+python prediction_toolkit/vcf_to_csv.py --snippy-dir snippy_outputs/ --out snp_data.csv
+```
+
+The converter filters SNPs to the 151,913 reference positions used during training and produces:
+
+```csv
+CHROM,POS,TYPE,REF,ALT,sample_count,sample_ids
+1,527498,snp,A,C,2,EA10489 EA10561
+1,1520479,snp,G,A,1,EA10641
+```
+
+If you installed the package with `pip install`, the converter is also available as:
+
+```bash
+4d-vcf-to-csv --snippy-dir snippy_outputs/ --out snp_data.csv
+```
+
+---
+
 ## Quick Start
 
 ### 1. Download Pre-trained Models
@@ -186,6 +245,7 @@ Missing values are automatically filled with column means.
 │   ├── __init__.py
 │   ├── predict.py                    # CLI
 │   ├── batch_predict.py              # Batch prediction
+│   ├── vcf_to_csv.py                 # VCF to CSV converter
 │   ├── model.py                      # Model wrapper
 │   ├── data_loader.py                # Data loaders
 │   ├── vcf_parser.py                 # VCF parser
@@ -193,6 +253,7 @@ Missing values are automatically filled with column means.
 │       ├── example_snp.csv
 │       └── example_env.csv
 ├── svd128_extratrees_feature_importance.csv
+├── EC29.gbk                          # Reference genome for SNP calling
 ├── requirements.txt
 ├── pyproject.toml
 ├── LICENSE
@@ -223,6 +284,55 @@ MIT License. See [LICENSE](LICENSE) for details.
 本软件基于 SVD(128) + ExtraTrees 回归模型，预测鲍曼不动杆菌（*Acinetobacter baumannii*, Aba）的四维传播风险评分。
 
 鲍曼不动杆菌（Aba）是医院获得性感染的重要致病菌。本模型通过整合全基因组 SNP 变异和环境因素，对 Aba 分离株的传播风险进行四维量化评估。
+
+### 数据准备
+
+本模型训练时使用的 SNP 是以 **EC29** 参考基因组（`EC29.gbk`，4,024,997 bp）为基准 call 出来的。该参考基因组文件已包含在本仓库中，因此从原始测序数据开始的标准流程是：
+
+**原始测序 reads → 用 Snippy（参考 EC29）call SNP → VCF → 转成 CSV → 预测**
+
+#### 1. 用 Snippy call SNP
+
+安装 [Snippy](https://github.com/tseemann/snippy) 后，以 `EC29.gbk` 为参考基因组对每个样本运行：
+
+```bash
+snippy --cpus 4 --outdir sample_A --ref EC29.gbk --R1 sample_A_R1.fastq.gz --R2 sample_A_R2.fastq.gz
+snippy --cpus 4 --outdir sample_B --ref EC29.gbk --R1 sample_B_R1.fastq.gz --R2 sample_B_R2.fastq.gz
+```
+
+输出目录结构：
+
+```
+snippy_outputs/
+├── sample_A/
+│   └── snps.vcf
+├── sample_B/
+│   └── snps.vcf
+└── ...
+```
+
+#### 2. VCF 转 CSV
+
+使用附带的 `vcf_to_csv.py` 转换器生成 `predict.py` 需要的长格式 CSV：
+
+```bash
+# 单个多样本 VCF
+python prediction_toolkit/vcf_to_csv.py --input combined.raw.vcf --out snp_data.csv
+
+# 多个单样本 VCF（通配符）
+python prediction_toolkit/vcf_to_csv.py --input "sample_*/snps.vcf" --out snp_data.csv
+
+# Snippy 输出目录
+python prediction_toolkit/vcf_to_csv.py --snippy-dir snippy_outputs/ --out snp_data.csv
+```
+
+转换器会自动过滤出训练时用到的 151,913 个参考 SNP 位点。
+
+如果通过 `pip install` 安装了本包，也可以直接使用：
+
+```bash
+4d-vcf-to-csv --snippy-dir snippy_outputs/ --out snp_data.csv
+```
 
 ### 快速开始
 
