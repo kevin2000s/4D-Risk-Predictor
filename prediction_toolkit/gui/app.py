@@ -470,7 +470,7 @@ Model Architecture:
   • Output: Network Hub, Clone Advantage, Persistence, Spatial Connectivity
 
 Development Team:
-  Bioinformatics Research Group
+  Peking University People's Hospital Hui Lab
 
 Technologies:
   Python, scikit-learn, pandas, numpy, matplotlib, ttkbootstrap
