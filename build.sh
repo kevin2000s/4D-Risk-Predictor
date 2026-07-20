@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (c) 2025 Peking University People's Hospital Hui Lab
+# SPDX-License-Identifier: MIT
 set -e
 
 echo "============================================"
@@ -24,11 +26,11 @@ python3 -m venv venv_build
 # Activate and install deps
 echo "[3/5] Installing dependencies..."
 source venv_build/bin/activate
-pip install -q pyinstaller pandas numpy scikit-learn scipy matplotlib joblib ttkbootstrap Pillow
+pip install -q pyinstaller pandas numpy scikit-learn scipy matplotlib joblib "ttkbootstrap>=1.10.0,<2.0" Pillow
 
 # Build
 echo "[4/5] Building executable with PyInstaller..."
-python -m PyInstaller 4D_Risk_Predictor.spec
+python -m PyInstaller -y 4D_Risk_Predictor.spec
 
 # Cleanup
 echo "[5/5] Cleaning up..."

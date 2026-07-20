@@ -1,9 +1,11 @@
 # 4D Transmission Risk Predictor
 
+**Developed by Hui Lab, Peking University People's Hospital**
+
 SVD(128) + ExtraTrees regression model for predicting four-dimensional transmission risk of *Acinetobacter baumannii*.
 
 - Input: Whole-genome SNP variants (151,913 sites) + Environmental factors
-- Output: Network Hub / Clone Advantage / Persistence / Spatial Connectivity
+- Output: Transmission centrality / Clonal expansion / Persistence / Spatial dissemination
 
 Target pathogen: *Acinetobacter baumannii* (Aba), a WHO priority multidrug-resistant pathogen.
 
@@ -17,10 +19,10 @@ This toolkit predicts four-dimensional transmission risk scores for *A. baumanni
 
 | Dimension | Description | Primary Driver |
 |:----------|:------------|:---------------|
-| **Network Hub** | Network centrality in transmission network | Genomic (99.1%) |
-| **Clone Advantage** | Competitive clone advantage | Genomic (97.0%) |
+| **Transmission centrality** | Network centrality in transmission network | Genomic (99.1%) |
+| **Clonal expansion** | Competitive clone advantage | Genomic (97.0%) |
 | **Persistence** | Sustained transmission capability | Genomic (92.7%) |
-| **Spatial Connectivity** | Cross-regional spread potential | Environmental (81.0%) |
+| **Spatial dissemination** | Cross-regional spread potential | Environmental (81.0%) |
 
 - Training samples: 689 isolates
 - SNP variants: 151,913 (full genome)
@@ -222,14 +224,28 @@ EA10489,9.0,10.0,2.0,13.0,0.6,62.0,20.0
 
 Missing values are automatically filled with column means.
 
+## Output Format
+
+Prediction CSV columns:
+
+| Column | Description |
+|:-------|:------------|
+| `sample_id` | Sample identifier |
+| `Transmission_Centrality` | Transmission centrality score |
+| `Clonal_Expansion` | Clonal expansion score |
+| `Persistence` | Persistence score |
+| `Spatial_Dissemination` | Spatial dissemination score |
+
+Scores range from 0 to 1, where higher values indicate greater predicted risk.
+
 ## Model Performance
 
 | Dimension | 5-Fold CV R2 | Test R2 | Test MAE | Primary Driver |
 |:----------|:------------:|:-------:|:--------:|:---------------|
-| Network Hub | 0.884 +- 0.017 | 0.901 | 0.055 | Genomic |
-| Clone Advantage | 0.797 +- 0.047 | 0.868 | 0.047 | Genomic |
+| Transmission centrality | 0.884 +- 0.017 | 0.901 | 0.055 | Genomic |
+| Clonal expansion | 0.797 +- 0.047 | 0.868 | 0.047 | Genomic |
 | Persistence | 0.821 +- 0.055 | 0.900 | 0.044 | Genomic |
-| Spatial Connectivity | 0.942 +- 0.021 | 0.927 | 0.034 | Environmental |
+| Spatial dissemination | 0.942 +- 0.021 | 0.927 | 0.034 | Environmental |
 
 - Overall feature contribution: Genomic 77.0% | Environmental 23.0%
 - SVD explained variance: 99.48% (128 components)
@@ -280,6 +296,8 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 ## 中文说明
+
+**本软件由北京大学人民医院 Hui Lab 开发**
 
 本软件基于 SVD(128) + ExtraTrees 回归模型，预测鲍曼不动杆菌（*Acinetobacter baumannii*, Aba）的四维传播风险评分。
 
@@ -371,9 +389,9 @@ python prediction_toolkit/predict.py --snp data/snp.csv --env data/env.csv --out
 
 | 维度 | 5折交叉验证 R2 | 测试集 R2 | 主要驱动因素 |
 |:----------|:------------:|:-------:|:---------------|
-| Network Hub（网络中心性）| 0.884 +- 0.017 | 0.901 | 基因组 (99.1%) |
-| Clone Advantage（克隆优势）| 0.797 +- 0.047 | 0.868 | 基因组 (97.0%) |
+| Transmission centrality（传播中心性）| 0.884 +- 0.017 | 0.901 | 基因组 (99.1%) |
+| Clonal expansion（克隆扩展）| 0.797 +- 0.047 | 0.868 | 基因组 (97.0%) |
 | Persistence（持续传播能力）| 0.821 +- 0.055 | 0.900 | 基因组 (92.7%) |
-| Spatial Connectivity（空间连通性）| 0.942 +- 0.021 | 0.927 | 环境 (81.0%) |
+| Spatial dissemination（空间传播）| 0.942 +- 0.021 | 0.927 | 环境 (81.0%) |
 
 详细数据格式说明和 API 用法见上方英文部分。

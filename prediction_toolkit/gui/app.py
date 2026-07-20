@@ -1,14 +1,7 @@
 #!/usr/bin/env python3
-"""
-SVD(128) + ExtraTrees 4D Transmission Risk Prediction - GUI Application
-A BEAST-style desktop application for predicting transmission risk.
-
-Usage:
-    python app.py
-
-Requirements:
-    pip install ttkbootstrap pandas numpy matplotlib scikit-learn scipy
-"""
+# Copyright (c) 2025 Peking University People's Hospital Hui Lab
+# SPDX-License-Identifier: MIT
+"""Desktop GUI for the 4D transmission risk predictor."""
 import sys
 import os
 import threading
@@ -29,7 +22,10 @@ try:
     import ttkbootstrap as ttk
     from ttkbootstrap.constants import *
     from ttkbootstrap.dialogs import Messagebox
-    from ttkbootstrap.scrolled import ScrolledFrame, ScrolledText
+    try:
+        from ttkbootstrap.widgets.scrolled import ScrolledFrame, ScrolledText
+    except ImportError:
+        from ttkbootstrap.scrolled import ScrolledFrame, ScrolledText
 except ImportError:
     print("Error: ttkbootstrap not installed.")
     print("Please run: pip install ttkbootstrap")
@@ -45,12 +41,23 @@ import matplotlib
 matplotlib.use('TkAgg')
 
 
+def _dim_label(dim, newline=False):
+    """Return a human-readable label for a dimension column."""
+    label = {
+        'Transmission_Centrality': 'Transmission centrality',
+        'Clonal_Expansion': 'Clonal expansion',
+        'Persistence': 'Persistence',
+        'Spatial_Dissemination': 'Spatial dissemination',
+    }.get(dim, dim.replace('_', ' '))
+    return label.replace(' ', '\n') if newline else label
+
+
 class TransmissionRiskApp:
     """Main GUI Application"""
 
     def __init__(self, root):
         self.root = root
-        self.root.title("4D Transmission Risk Predictor - SVD(128) + ExtraTrees")
+        self.root.title("4D Transmission Risk Predictor - Hui Lab, Peking University People's Hospital")
         self.root.geometry("1200x800")
         self.root.minsize(1000, 700)
 
@@ -222,10 +229,10 @@ class TransmissionRiskApp:
 SVD Explained Variance: 99.48%
 
 Prediction Dimensions:
-  • Network Hub          (CV R² = 0.884 ± 0.017, Test R² = 0.901)
-  • Clone Advantage      (CV R² = 0.797 ° 0.047, Test R² = 0.869)
-  • Persistence          (CV R² = 0.821 ° 0.055, Test R² = 0.900)
-  • Spatial Connectivity (CV R² = 0.942 ° 0.021, Test R² = 0.927)
+  • Transmission centrality  (CV R² = 0.884 ± 0.017, Test R² = 0.901)
+  • Clonal expansion         (CV R² = 0.797 ± 0.047, Test R² = 0.869)
+  • Persistence              (CV R² = 0.821 ± 0.055, Test R² = 0.900)
+  • Spatial dissemination    (CV R² = 0.942 ± 0.021, Test R² = 0.927)
 
 Feature Contribution:
   • Genomic (SVD Latent): 77.0%
@@ -301,7 +308,7 @@ Missing values will be filled with column means."""
         opts_card.pack(fill=X, pady=10)
 
         self.env_only_var = ttk.BooleanVar(value=False)
-        ttk.Checkbutton(opts_card, text="Environment-only prediction (Spatial Connectivity only)",
+        ttk.Checkbutton(opts_card, text="Environment-only prediction (Spatial dissemination only)",
                         variable=self.env_only_var).pack(anchor=W, pady=(10, 0))
 
         # Next button
@@ -467,7 +474,7 @@ Model Architecture:
   • Input: 151,913 SNP variants + 7 environmental features
   • Dimensionality Reduction: TruncatedSVD (128 components, 99.48% variance)
   • Regressor: ExtraTrees (300 estimators, max_depth=20)
-  • Output: Network Hub, Clone Advantage, Persistence, Spatial Connectivity
+  • Output: Transmission centrality, Clonal expansion, Persistence, Spatial dissemination
 
 Development Team:
   Peking University People's Hospital Hui Lab
@@ -482,7 +489,7 @@ For questions or support, please refer to the documentation."""
 
         ttk.Separator(card).pack(fill=X, padx=50, pady=20)
 
-        ttk.Label(card, text="© 2025 All Rights Reserved",
+        ttk.Label(card, text="© 2025 Peking University People's Hospital Hui Lab. All Rights Reserved.",
                   font=("Helvetica", 10), bootstyle="secondary").pack()
 
     # ==================== NAVIGATION ====================
@@ -669,7 +676,7 @@ For questions or support, please refer to the documentation."""
         if self.snp_data is None and not self.env_only_var.get():
             result = Messagebox.yesno(
                 "No SNP data loaded.\n\nRun environment-only prediction?\n"
-                "(Only Spatial Connectivity will be reliable)",
+                "(Only Spatial dissemination will be reliable)",
                 "Confirm"
             )
             if result == "Yes":
@@ -721,7 +728,7 @@ For questions or support, please refer to the documentation."""
             # Environment-only prediction
             if self.env_only_var.get() or self.snp_data is None:
                 self._log("[3/5] Environment-only mode (SNP input skipped)")
-                self._log("      Warning: Only Spatial Connectivity is reliable")
+                self._log("      Warning: Only Spatial dissemination is reliable")
                 results = predictor.predict_env_only(X_env, env_samples)
                 self.predict_progress['value'] = 80
 
@@ -834,7 +841,7 @@ For questions or support, please refer to the documentation."""
             self._log("Prediction Complete!")
             self._log("=" * 50)
             self._log(f"Samples: {len(self.predictions)}")
-            for col in ['Network_Hub', 'Clone_Advantage', 'Persistence', 'Spatial_Connectivity']:
+            for col in ['Transmission_Centrality', 'Clonal_Expansion', 'Persistence', 'Spatial_Dissemination']:
                 if col in self.predictions.columns:
                     self._log(f"  {col}: mean={self.predictions[col].mean():.3f}, "
                               f"range=[{self.predictions[col].min():.3f}, {self.predictions[col].max():.3f}]")
@@ -914,7 +921,7 @@ For questions or support, please refer to the documentation."""
         ax.spines['right'].set_visible(False)
 
     def _show_scatter_plot(self):
-        """Enhanced scatter plots with regression lines"""
+        """Scatter plots with trend lines."""
         if self.predictions is None:
             Messagebox.show_warning("No predictions to plot. Run prediction first.", "No Data")
             return
@@ -925,7 +932,7 @@ For questions or support, please refer to the documentation."""
         fig = Figure(figsize=(14, 10), dpi=100)
         fig.patch.set_facecolor('#0f0f23')
 
-        dims = ['Network_Hub', 'Clone_Advantage', 'Persistence', 'Spatial_Connectivity']
+        dims = ['Transmission_Centrality', 'Clonal_Expansion', 'Persistence', 'Spatial_Dissemination']
         colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4']
         n = len(self.predictions)
 
@@ -953,7 +960,7 @@ For questions or support, please refer to the documentation."""
             ax.text(len(values)*0.02, values.mean()+0.03, f'mean={values.mean():.3f}',
                    color='white', fontsize=8)
 
-            ax.set_title(f'{dim.replace("_", " ")}  (n={n})', color='white', fontsize=11, fontweight='bold')
+            ax.set_title(f'{_dim_label(dim)}  (n={n})', color='white', fontsize=11, fontweight='bold')
             ax.set_xlabel('Sample Index', color='white')
             ax.set_ylabel('Score', color='white')
             ax.set_ylim(-0.05, 1.05)
@@ -985,7 +992,7 @@ For questions or support, please refer to the documentation."""
         ax = fig.add_subplot(111)
         self._setup_dark_axes(ax)
 
-        dims = ['Network_Hub', 'Clone_Advantage', 'Persistence', 'Spatial_Connectivity']
+        dims = ['Transmission_Centrality', 'Clonal_Expansion', 'Persistence', 'Spatial_Dissemination']
         colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4']
         data_to_plot = []
         positions = []
@@ -995,7 +1002,7 @@ For questions or support, please refer to the documentation."""
             if dim in self.predictions.columns:
                 data_to_plot.append(self.predictions[dim].values)
                 positions.append(i)
-                labels.append(dim.replace('_', '\n'))
+                labels.append(_dim_label(dim, newline=True))
 
         # Violin plot
         parts = ax.violinplot(data_to_plot, positions=positions, widths=0.6,
@@ -1047,7 +1054,7 @@ For questions or support, please refer to the documentation."""
         fig = Figure(figsize=(12, 9), dpi=100)
         fig.patch.set_facecolor('#0f0f23')
 
-        dims = ['Network_Hub', 'Clone_Advantage', 'Persistence', 'Spatial_Connectivity']
+        dims = ['Transmission_Centrality', 'Clonal_Expansion', 'Persistence', 'Spatial_Dissemination']
         dims_present = [d for d in dims if d in self.predictions.columns]
 
         if len(dims_present) == 0:
@@ -1074,7 +1081,7 @@ For questions or support, please refer to the documentation."""
         im = ax.imshow(data_matrix, cmap='RdYlBu_r', aspect='auto', vmin=0, vmax=1)
 
         ax.set_xticks(np.arange(len(dims_present)))
-        ax.set_xticklabels([d.replace('_', '\n') for d in dims_present], color='white', fontsize=10)
+        ax.set_xticklabels([_dim_label(d, newline=True) for d in dims_present], color='white', fontsize=10)
         ax.set_yticks(np.arange(len(sample_labels)))
         ax.set_yticklabels(sample_labels, color='white', fontsize=7)
 
@@ -1098,7 +1105,7 @@ For questions or support, please refer to the documentation."""
         canvas.get_tk_widget().pack(fill=BOTH, expand=True)
 
     def _show_bubble_plot(self):
-        """3D bubble chart: Network vs Clone vs Persistence, bubble=Spatial, color=composite"""
+        """3D bubble chart: Transmission centrality vs Clonal expansion vs Persistence, bubble=Spatial dissemination, color=composite"""
         if self.predictions is None:
             Messagebox.show_warning("No predictions to plot. Run prediction first.", "No Data")
             return
@@ -1109,7 +1116,7 @@ For questions or support, please refer to the documentation."""
         fig = Figure(figsize=(13, 10), dpi=100)
         fig.patch.set_facecolor('#0f0f23')
 
-        dims = ['Network_Hub', 'Clone_Advantage', 'Persistence', 'Spatial_Connectivity']
+        dims = ['Transmission_Centrality', 'Clonal_Expansion', 'Persistence', 'Spatial_Dissemination']
         if not all(d in self.predictions.columns for d in dims):
             Messagebox.show_warning("All 4 dimensions required for bubble plot.", "Missing Data")
             return
@@ -1118,17 +1125,17 @@ For questions or support, please refer to the documentation."""
         ax = fig.add_subplot(2, 2, 1)
         self._setup_dark_axes(ax)
 
-        x = self.predictions['Network_Hub'].values
-        y = self.predictions['Clone_Advantage'].values
+        x = self.predictions['Transmission_Centrality'].values
+        y = self.predictions['Clonal_Expansion'].values
         z = self.predictions['Persistence'].values
-        size = self.predictions['Spatial_Connectivity'].values
+        size = self.predictions['Spatial_Dissemination'].values
         composite = (x + y + z) / 3
 
         scatter = ax.scatter(x, y, s=size*500+20, c=composite, cmap='plasma',
                             alpha=0.7, edgecolors='white', linewidths=0.5)
-        ax.set_xlabel('Network Hub', color='white')
-        ax.set_ylabel('Clone Advantage', color='white')
-        ax.set_title('Bubble: x=Network, y=Clone, size=Spatial, color=Composite', color='white', fontsize=10, fontweight='bold')
+        ax.set_xlabel('Transmission centrality', color='white')
+        ax.set_ylabel('Clonal expansion', color='white')
+        ax.set_title('Bubble: x=Transmission centrality, y=Clonal expansion, size=Spatial dissemination, color=Composite', color='white', fontsize=10, fontweight='bold')
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
         ax.grid(True, alpha=0.15, color='white')
@@ -1136,7 +1143,7 @@ For questions or support, please refer to the documentation."""
         cbar.ax.tick_params(colors='white', labelsize=7)
 
         # Pairwise correlations
-        for idx, (xdim, ydim) in enumerate([('Network_Hub', 'Persistence'), ('Clone_Advantage', 'Spatial_Connectivity'), ('Network_Hub', 'Spatial_Connectivity')]):
+        for idx, (xdim, ydim) in enumerate([('Transmission_Centrality', 'Persistence'), ('Clonal_Expansion', 'Spatial_Dissemination'), ('Transmission_Centrality', 'Spatial_Dissemination')]):
             ax = fig.add_subplot(2, 2, idx + 2)
             self._setup_dark_axes(ax)
             xv = self.predictions[xdim].values
@@ -1144,12 +1151,12 @@ For questions or support, please refer to the documentation."""
 
             # Hexbin for density
             hb = ax.hexbin(xv, yv, gridsize=15, cmap='viridis', alpha=0.8, mincnt=1)
-            ax.set_xlabel(xdim.replace('_', ' '), color='white')
-            ax.set_ylabel(ydim.replace('_', ' '), color='white')
+            ax.set_xlabel(_dim_label(xdim), color='white')
+            ax.set_ylabel(_dim_label(ydim), color='white')
 
             # Correlation
             corr = np.corrcoef(xv, yv)[0, 1]
-            ax.set_title(f'{xdim.replace("_", " ")} vs {ydim.replace("_", " ")}\nr={corr:.3f}',
+            ax.set_title(f'{_dim_label(xdim)} vs {_dim_label(ydim)}\nr={corr:.3f}',
                         color='white', fontsize=10)
             ax.set_xlim(0, 1)
             ax.set_ylim(0, 1)
@@ -1165,7 +1172,7 @@ For questions or support, please refer to the documentation."""
         canvas.get_tk_widget().pack(fill=BOTH, expand=True)
 
     def _show_radar_plot(self):
-        """Enhanced radar plot with individual sample overlays"""
+        """Radar plot with individual sample overlays."""
         if self.predictions is None:
             Messagebox.show_warning("No predictions to plot. Run prediction first.", "No Data")
             return
@@ -1178,7 +1185,7 @@ For questions or support, please refer to the documentation."""
 
         ax = fig.add_subplot(111, projection='polar')
 
-        dims = ['Network_Hub', 'Clone_Advantage', 'Persistence', 'Spatial_Connectivity']
+        dims = ['Transmission_Centrality', 'Clonal_Expansion', 'Persistence', 'Spatial_Dissemination']
         n_dims = len(dims)
         angles = np.linspace(0, 2 * np.pi, n_dims, endpoint=False).tolist()
         angles += angles[:1]
@@ -1204,7 +1211,7 @@ For questions or support, please refer to the documentation."""
 
         # Styling
         ax.set_xticks(angles[:-1])
-        ax.set_xticklabels([d.replace('_', ' ') for d in dims], color='white', fontsize=12)
+        ax.set_xticklabels([_dim_label(d, newline=True) for d in dims], color='white', fontsize=12)
         ax.tick_params(colors='white')
         ax.set_ylim(0, 1)
         ax.set_title('4D Risk Profile Radar\n(Individual Samples + Mean)',
@@ -1231,7 +1238,7 @@ For questions or support, please refer to the documentation."""
         fig = Figure(figsize=(13, 8), dpi=100)
         fig.patch.set_facecolor('#0f0f23')
 
-        dims = ['Network_Hub', 'Clone_Advantage', 'Persistence', 'Spatial_Connectivity']
+        dims = ['Transmission_Centrality', 'Clonal_Expansion', 'Persistence', 'Spatial_Dissemination']
         colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4']
 
         # Left: Box + swarm
@@ -1278,7 +1285,7 @@ For questions or support, please refer to the documentation."""
             ax1.plot([i-0.15, i+0.15], [mean, mean], color='white', linewidth=2, linestyle='--')
 
         ax1.set_xticks(positions)
-        ax1.set_xticklabels([d.replace('_', '\n') for d in dims[:len(data_to_plot)]],
+        ax1.set_xticklabels([_dim_label(d, newline=True) for d in dims[:len(data_to_plot)]],
                            color='white', fontsize=11)
         ax1.set_ylabel('Score', color='white', fontsize=11)
         ax1.set_title('Box Plot + Individual Points with Mean/Median', color='white', fontsize=13, fontweight='bold')
@@ -1294,7 +1301,7 @@ For questions or support, please refer to the documentation."""
             if dim in self.predictions.columns:
                 data = self.predictions[dim].values
                 ax2.hist(data, bins=bins, alpha=0.5, color=color,
-                        label=dim.replace('_', ' '), edgecolor='white', linewidth=0.5)
+                        label=_dim_label(dim), edgecolor='white', linewidth=0.5)
 
                 # KDE overlay
                 from scipy.stats import gaussian_kde

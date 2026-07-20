@@ -27,6 +27,7 @@ ENV/
 env.bak/
 venv.bak/
 build_env/
+venv_build/
 
 # PyInstaller
 *.manifest
@@ -56,3 +57,4 @@ example_predictions.csv
 
 # Model files - tracked via GitHub Releases, not in Git repo
 *.joblib
+models.zip

@@ -1,4 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
+# Copyright (c) 2025 Peking University People's Hospital Hui Lab
+# SPDX-License-Identifier: MIT
 
 
 a = Analysis(
@@ -6,7 +8,7 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[('svd128_extratrees_models.joblib', '.'), ('svd128_svd_transformer.joblib', '.'), ('svd128_env_scaler.joblib', '.'), ('svd128_model_metadata.joblib', '.'), ('svd128_extratrees_feature_importance.csv', '.'), ('prediction_toolkit', 'prediction_toolkit')],
-    hiddenimports=['sklearn', 'sklearn.ensemble', 'sklearn.decomposition', 'sklearn.preprocessing', 'pandas', 'numpy', 'scipy', 'matplotlib', 'matplotlib.backends.backend_tkagg', 'ttkbootstrap', 'ttkbootstrap.dialogs', 'ttkbootstrap.scrolled', 'PIL'],
+    hiddenimports=['sklearn', 'sklearn.ensemble', 'sklearn.decomposition', 'sklearn.preprocessing', 'pandas', 'numpy', 'scipy', 'matplotlib', 'matplotlib.backends.backend_tkagg', 'ttkbootstrap', 'ttkbootstrap.dialogs', 'ttkbootstrap.scrolled', 'ttkbootstrap.widgets.scrolled', 'PIL'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

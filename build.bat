@@ -1,4 +1,6 @@
 @echo off
+REM Copyright (c) 2025 Peking University People's Hospital Hui Lab
+REM SPDX-License-Identifier: MIT
 chcp 65001 >nul
 title Build 4D Risk Predictor
 echo ============================================
@@ -32,7 +34,7 @@ if errorlevel 1 (
 :: Activate and install deps
 echo [3/5] Installing dependencies...
 call venv_build\Scripts\activate.bat
-pip install -q pyinstaller pandas numpy scikit-learn scipy matplotlib joblib ttkbootstrap Pillow
+pip install -q pyinstaller pandas numpy scikit-learn scipy matplotlib joblib "ttkbootstrap>=1.10.0,<2.0" Pillow
 if errorlevel 1 (
     echo [ERROR] Failed to install dependencies.
     pause
@@ -41,7 +43,7 @@ if errorlevel 1 (
 
 :: Build
 echo [4/5] Building executable with PyInstaller...
-python -m PyInstaller 4D_Risk_Predictor.spec
+python -m PyInstaller -y 4D_Risk_Predictor.spec
 if errorlevel 1 (
     echo [ERROR] Build failed.
     pause

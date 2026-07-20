@@ -1,12 +1,7 @@
 #!/usr/bin/env python3
-"""
-批量预测脚本
-支持处理大量样本，自动分批次预测
-
-用法:
-    python batch_predict.py --snp-dir snp_data/ --env-file env.csv --out-dir results/
-    python batch_predict.py --snp-file large_snp.csv --env-file env.csv --out results.csv --batch-size 100
-"""
+# Copyright (c) 2025 Peking University People's Hospital Hui Lab
+# SPDX-License-Identifier: MIT
+"""Batch prediction script with automatic chunking for large datasets."""
 import argparse
 import sys
 import os
@@ -51,10 +46,8 @@ def main():
     print("批量 4D 传播风险预测")
     print("="*60)
 
-    # 加载模型
     predictor = TransmissionRiskPredictor(model_dir=args.model_dir)
 
-    # 加载环境数据
     env_loader = EnvDataLoader()
     X_env_all, env_samples_all = env_loader.load(
         args.env_file, encoding=args.encoding
@@ -62,7 +55,6 @@ def main():
 
     all_results = []
 
-    # 处理单个SNP文件
     if args.snp_file:
         print(f"\n处理SNP文件: {args.snp_file}")
         snp_loader = SNPDataLoader(predictor.snp_ids)
@@ -76,12 +68,10 @@ def main():
                 args.snp_file, encoding=args.encoding
             )
 
-        # 对齐并预测
         X_snp_a, X_env_a, samples = align_samples(
             X_snp, snp_samples, X_env_all, env_samples_all
         )
 
-        # 分批预测
         n = len(samples)
         print(f"总样本数: {n}, 批次大小: {args.batch_size}")
 
@@ -96,7 +86,6 @@ def main():
             )
             all_results.append(pd.DataFrame(batch_results))
 
-    # 处理SNP目录
     elif args.snp_dir:
         import glob
         snp_files = sorted(glob.glob(os.path.join(args.snp_dir, "*.csv")))
@@ -125,7 +114,6 @@ def main():
                 df_batch = pd.DataFrame(batch_results)
                 all_results.append(df_batch)
 
-                # 可选: 每个文件单独输出
                 if args.out_dir:
                     os.makedirs(args.out_dir, exist_ok=True)
                     out_name = os.path.splitext(os.path.basename(snp_file))[0] + "_pred.csv"
@@ -137,17 +125,13 @@ def main():
                 print(f"       [SKIP] {e}")
                 continue
 
-    # 仅环境预测
     else:
         print("\n仅环境数据预测模式")
         results = predictor.predict_env_only(X_env_all, env_samples_all)
         all_results.append(pd.DataFrame(results))
 
-    # 合并并保存
     if all_results:
         final_df = pd.concat(all_results, ignore_index=True)
-
-        # 去重（保留第一个）
         final_df = final_df.drop_duplicates(subset=['sample_id'], keep='first')
 
         final_df.to_csv(args.out, index=False, encoding='utf-8-sig')
@@ -156,9 +140,9 @@ def main():
         print(f"批量预测完成! 结果保存: {args.out}")
         print("="*60)
         print(f"  总样本数: {len(final_df)}")
-        print(f"  预测维度: Network_Hub, Clone_Advantage, Persistence, Spatial_Connectivity")
+        print(f"  预测维度: Transmission_Centrality, Clonal_Expansion, Persistence, Spatial_Dissemination")
         print()
-        for col in ['Network_Hub', 'Clone_Advantage', 'Persistence', 'Spatial_Connectivity']:
+        for col in ['Transmission_Centrality', 'Clonal_Expansion', 'Persistence', 'Spatial_Dissemination']:
             print(f"  {col:<20} min={final_df[col].min():.3f}  max={final_df[col].max():.3f}  mean={final_df[col].mean():.3f}")
         print("="*60)
     else:

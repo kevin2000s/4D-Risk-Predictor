@@ -1,12 +1,6 @@
-"""
-SVD(128) + ExtraTrees 4D Transmission Risk Prediction Toolkit
-
-Usage:
-    from prediction_toolkit import TransmissionRiskPredictor, SNPDataLoader, EnvDataLoader
-
-    predictor = TransmissionRiskPredictor()
-    # ... load data and predict
-"""
+# Copyright (c) 2025 Peking University People's Hospital Hui Lab
+# SPDX-License-Identifier: MIT
+"""4D transmission risk prediction toolkit."""
 
 from .model import TransmissionRiskPredictor
 from .data_loader import SNPDataLoader, EnvDataLoader, align_samples
