@@ -122,7 +122,7 @@ If you installed the package with `pip install`, the converter is also available
 Model files (`*.joblib`) are not stored in this repository. Download `models.zip` from the [Releases](https://github.com/kevin2000s/4D-Risk-Predictor/releases) page and extract to the project root.
 
 ```bash
-wget https://github.com/kevin2000s/4D-Risk-Predictor/releases/download/v1.0/models.zip
+wget https://github.com/kevin2000s/4D-Risk-Predictor/releases/download/v1.1/models.zip
 unzip models.zip
 ```
 
@@ -359,7 +359,7 @@ python prediction_toolkit/vcf_to_csv.py --snippy-dir snippy_outputs/ --out snp_d
 模型文件（`*.joblib`）不存储在代码仓库中。请从 [Releases](https://github.com/kevin2000s/4D-Risk-Predictor/releases) 页面下载 `models.zip` 并解压到项目根目录。
 
 ```bash
-wget https://github.com/kevin2000s/4D-Risk-Predictor/releases/download/v1.0/models.zip
+wget https://github.com/kevin2000s/4D-Risk-Predictor/releases/download/v1.1/models.zip
 unzip models.zip
 ```
 
